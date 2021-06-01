@@ -82,6 +82,8 @@ class TreeWalker
    * path otherwise
    */
   std::pair<smt::Term, std::vector<int>> visit(smt::Term & node);
+  //TODO write this in in the right way...
+  smt::UnorderedTermMap tcc_cache_;
 
  protected:
   /** Visit a single term.
@@ -116,6 +118,11 @@ class TreeWalker
   virtual TreeWalkerStepResult visit_term(smt::Term & formula,
                                           smt::Term & term,
                                           std::vector<int> & path);
+
+  //going down: fresh variables cache
+  virtual TreeWalkerStepResult visit_term_pre(smt::Term &formula, smt::Term &term, std::vector<int> &path);
+  //going up: tcc generation
+  virtual TreeWalkerStepResult visit_term_post(smt::Term &formula, smt::Term &term, std::vector<int> &path);
 
   /** Check if key is in cache
    *  @param key

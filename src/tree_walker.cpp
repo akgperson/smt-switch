@@ -38,7 +38,7 @@ pair<Term, vector<int>> TreeWalker::visit(Term & node)
   }
 
   // visit top node (tree_path currently empty)
-  visit_term(node, node, tree_path);
+  visit_term_pre(node, node, tree_path);
   /* to_visit is used to store terms left to visit & is a vector of pairs, where
    * the first element is the term we are saving to visit later &
    * the second element is an int serving as either an index for child's number
@@ -93,7 +93,7 @@ pair<Term, vector<int>> TreeWalker::visit(Term & node)
       // list of child numbers creating a numbered path for an occurrence
       tree_path.push_back(child_no);
       // visit current_term
-      visit_term(node, current_term, tree_path);
+      visit_term_pre(node, current_term, tree_path);
       // push back new pair with the flag -1 to indicate that it has already
       // been visited
       pn.first = current_term;
@@ -118,6 +118,7 @@ pair<Term, vector<int>> TreeWalker::visit(Term & node)
       // have been visited pop off last index on tree_path to reflect that we
       // are moving up a level in the formula now that all nodes below this have
       // already been traversed
+      visit_term_post(node, current_term, tree_path);
       if (!tree_path.empty())
       {
         tree_path.pop_back();
@@ -150,6 +151,29 @@ TreeWalkerStepResult TreeWalker::visit_term(Term & formula,
   save_in_cache(term, occ);
 
   return TreeWalker_Continue;
+}
+
+TreeWalkerStepResult visit_term_pre(Term &formula, Term &term, vector<int> &path) {
+  // default implementation of visit_term builds up cache to map from a term in
+  // the formula to a pair giving the full formula in which it occurs and the
+  // path indicating its place in the formula
+
+  // occurrence of the term represented by the formula in which it is found and
+  // the path indicating its placement in the formula
+  pair<Term, vector<int>> occ;
+  occ.first = formula;
+  occ.second = path;
+  // save mapping from term we're visiting to the pair containing the formula it
+  // occurs in and its path indicating its place in the formula
+  save_in_cache(term, occ);
+
+  return TreeWalker_Continue;
+}
+
+
+//going up: tcc generation
+TreeWalkerStepResult visit_term_post(smt::Term &formula, smt::Term &term, std::vector<int> &path) {
+  return TreeWalker_continue;
 }
 
 bool TreeWalker::in_cache(const Term & key) const
